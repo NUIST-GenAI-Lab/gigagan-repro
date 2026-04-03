@@ -1,0 +1,26 @@
+# === 训练产出 ===
+gigagan-models/
+gigagan-results/
+*.ckpt
+
+# === 数据集（大文件勿提交）===
+data/torchvision/
+data/caltech101_flat/
+data/caltech101_extract/
+data/*_flat/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# === 日志 ===
+*.log
+
+# === IDE / OS ===
+.vscode/
+.idea/
+.DS_Store
