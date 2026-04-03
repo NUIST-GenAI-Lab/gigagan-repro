@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from collections import namedtuple
 from pathlib import Path
 from math import log2, sqrt
@@ -2688,7 +2689,9 @@ class GigaGAN(nn.Module):
         last_multiscale_d_loss = 0.
         last_multiscale_g_loss = 0.
 
-        for _ in tqdm(range(steps), initial = self.steps.item()):
+        # 仅主进程写进度条；重定向到文件时禁用，避免多卡重复刷屏与日志充斥 tqdm 行
+        _show_pbar = self.is_main and sys.stderr.isatty()
+        for _ in tqdm(range(steps), initial=self.steps.item(), disable=not _show_pbar):
             steps = self.steps.item()
             is_first_step = steps == 1
 

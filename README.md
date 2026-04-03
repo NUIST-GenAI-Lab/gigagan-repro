@@ -71,28 +71,62 @@ python scripts/download_dataset.py --dataset caltech101 --output data/caltech101
 
 ### 多卡训练（推荐）
 
+用 **tmux** 跑训练，关终端也不会给进程发 SIGHUP（只要别关 tmux 会话本身）。
+
+## 1. 新建会话并进去
+
 ```bash
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch \
-  --multi_gpu --num_processes=8 --mixed_precision=no \
-  -m gigagan_pytorch.train \
-  --data_folder data/caltech101_flat \
-  --batch_size 5 --steps 1000 --grad_accum_every 4 \
-  --learning_rate 2e-4 --max_grad_norm 1.0 --no-amp
+tmux new -s gigagan
 ```
+
+`-s gigagan` 是会话名，可以随便改。
+
+## 2. 在 tmux 里照常启动环境 + 训练
+
 ```bash
 cd /home/cwh/gigagan-repro
 source /home/cwh/miniconda3/etc/profile.d/conda.sh
 conda activate gigagan
 
-nohup env CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch \
+accelerate launch \
   --multi_gpu --num_processes=8 --mixed_precision=no \
   -m gigagan_pytorch.train \
   --data_folder data/caltech101_flat \
-  --batch_size 5 --steps 1000 --grad_accum_every 4 \
+  --batch_size 2 --steps 1000 --grad_accum_every 4 \
   --learning_rate 2e-4 --max_grad_norm 1.0 --no-amp \
-  > train.log 2>&1 &
+  2>&1 | tee train.log
 ```
-> `--num_processes` 须与可见 GPU 数一致。
+
+（在 tmux 里一般用 `tee train.log` 即可，不必再 `nohup`。）
+
+## 3. 从 tmux「脱离」——关 SSH/关终端，训练继续
+
+按键：`**Ctrl+b**`，松开后按 `**d**`（detach）。
+
+## 4. 之后重新连上
+
+```bash
+tmux attach -t gigagan
+```
+
+若只有一个会话，也可以简写：
+
+```bash
+tmux a
+```
+
+## 5. 常用补充
+
+
+| 目的       | 命令                             |
+| -------- | ------------------------------ |
+| 列出会话     | `tmux ls`                      |
+| 杀掉会话     | `tmux kill-session -t gigagan` |
+| 在会话里开新窗口 | `Ctrl+b` 再按 `c`                |
+| 切换窗口     | `Ctrl+b` 再按 `0`–`9` 或 `n`/`p`  |
+
+
+核心就三步：`**tmux new -s 名字` → 跑命令 → `Ctrl+b` `d` 脱离**。
 
 ### 单卡训练
 
