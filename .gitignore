@@ -1,6 +1,5 @@
 # === 训练产出 ===
 gigagan-models/
-gigagan-results/
 *.ckpt
 
 # === 数据集（大文件勿提交）===
