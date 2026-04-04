@@ -92,7 +92,7 @@ accelerate launch \
   --multi_gpu --num_processes=8 --mixed_precision=no \
   -m gigagan_pytorch.train \
   --data_folder data/caltech101_flat \
-  --batch_size 2 --steps 1000 --grad_accum_every 4 \
+  --batch_size 2 --steps 100000 --grad_accum_every 4 \
   --learning_rate 2e-4 --max_grad_norm 1.0 --no-amp \
   2>&1 | tee train.log
 ```
